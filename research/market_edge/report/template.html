@@ -1,0 +1,697 @@
+<title>¿Se puede ganar al mercado?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: one reading column (65ch prose) with charts allowed to widen to 980px; a lab-report voice with
+   statistical notation (t, p, DSR) set in mono as the subject-specific detail. */
+:root {
+  --bg: #f2f5f5;
+  --surface: #ffffff;
+  --ink: #132022;
+  --ink-2: #56676a;
+  --rule: #d9e1e2;
+  --grid: #e6ecec;
+  --axis: #bfc9ca;
+  --accent: #1b64be;
+  --s1: #257de0;
+  --s2: #f47230;
+  --s1-wash: rgba(37, 125, 224, 0.10);
+  --oos-band: rgba(37, 125, 224, 0.05);
+  --good: #0aac23;
+  --good-ink: #006c10;
+  --good-bg: #e5f5e8;
+  --bad: #dc3c3d;
+  --bad-ink: #b02a2b;
+  --bad-bg: #fbe8e8;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1314; --surface: #151c1d; --ink: #e5ecec; --ink-2: #9aa9ab; --rule: #263234; --grid: #222e30;
+    --axis: #3d4a4c; --accent: #6aabf1; --s1: #338ced; --s2: #e76624; --s1-wash: rgba(51, 140, 237, 0.14);
+    --oos-band: rgba(51, 140, 237, 0.07); --good: #0aac23; --good-ink: #53c556; --good-bg: #12301a;
+    --bad: #dc3c3d; --bad-ink: #f08080; --bad-bg: #3a1a1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1314; --surface: #151c1d; --ink: #e5ecec; --ink-2: #9aa9ab; --rule: #263234; --grid: #222e30;
+  --axis: #3d4a4c; --accent: #6aabf1; --s1: #338ced; --s2: #e76624; --s1-wash: rgba(51, 140, 237, 0.14);
+  --oos-band: rgba(51, 140, 237, 0.07); --good: #0aac23; --good-ink: #53c556; --good-bg: #12301a;
+  --bad: #dc3c3d; --bad-ink: #f08080; --bad-bg: #3a1a1b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 56px; }
+.prose { max-width: 65ch; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1.05; font-weight: 700; }
+h2 { font-size: clamp(1.45rem, 3.2vw, 1.9rem); line-height: 1.15; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+.stack { display: grid; gap: 16px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.mono, .num { font-family: var(--font-mono); }
+.num { font-variant-numeric: tabular-nums; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--grid); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* hero */
+header.hero { padding-top: 48px; display: grid; gap: 28px; }
+.lede { font-size: 1.15rem; color: var(--ink); max-width: 62ch; }
+.verdict { display: grid; grid-template-columns: auto 1fr; gap: 8px 24px; align-items: center; padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.verdict .big { font-family: var(--font-display); font-weight: 700; font-size: clamp(3.4rem, 10vw, 5.2rem); line-height: 1; letter-spacing: -0.03em; }
+.verdict .big small { font-size: 0.42em; font-weight: 500; color: var(--ink-2); letter-spacing: 0; }
+.verdict p { color: var(--ink-2); max-width: 46ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 0.9rem; color: var(--ink-2); }
+.facts b { color: var(--ink); font-weight: 600; font-family: var(--font-mono); font-size: 0.85rem; }
+
+/* callout */
+.callout { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 20px 22px; display: grid; gap: 10px; }
+.callout h3 { font-size: 1.1rem; }
+
+/* charts */
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.chart-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 18px 12px; display: grid; gap: 12px; min-width: 0; }
+.chart { position: relative; width: 100%; min-width: 0; }
+.chart svg { display: block; width: 100%; overflow: visible; touch-action: pan-y; }
+.chart svg text { font-family: var(--font-body); font-size: 11.5px; fill: var(--ink-2); }
+.chart svg text.lbl { fill: var(--ink); font-weight: 500; font-size: 12px; }
+.chart svg text.val { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.key-line { width: 16px; height: 2px; border-radius: 2px; display: inline-block; }
+.key-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.key-ring { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid var(--ink-2); background: var(--surface); }
+.key-band { width: 14px; height: 10px; display: inline-block; background: var(--oos-band); border: 1px solid var(--rule); border-radius: 2px; }
+figcaption { font-size: 0.85rem; color: var(--ink-2); max-width: 72ch; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; font-size: 0.8rem; line-height: 1.45; box-shadow: 0 4px 16px rgba(0,0,0,0.12); min-width: 150px; z-index: 5; }
+.tip .t-head { color: var(--ink-2); font-size: 0.75rem; margin-bottom: 2px; }
+.tip .t-row { display: flex; align-items: center; gap: 8px; }
+.tip .t-row b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tip .t-row span { color: var(--ink-2); }
+details.data { font-size: 0.85rem; }
+details.data summary { cursor: pointer; color: var(--accent); width: fit-content; }
+.table-wrap { overflow-x: auto; min-width: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+td.n, th.n { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+details.data table { margin-top: 10px; }
+
+/* scorecard */
+.score td { vertical-align: middle; }
+.score td:nth-child(2) { min-width: 190px; }
+.score th, .score td { padding: 8px 7px; }
+.score .h { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-2); }
+.score .ttl { font-weight: 600; }
+.score .rule { font-size: 0.8rem; color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 0.78rem; padding: 2px 8px 2px 6px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip.ok { background: var(--good-bg); color: var(--good-ink); }
+.chip.ko { background: var(--bad-bg); color: var(--bad-ink); }
+.chip svg { width: 12px; height: 12px; flex: none; }
+.criteria { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.criteria div { border-top: 2px solid var(--ink); padding-top: 8px; font-size: 0.9rem; }
+.criteria b { display: block; font-family: var(--font-display); font-size: 0.98rem; }
+.criteria span { color: var(--ink-2); }
+
+/* explorer */
+.picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.picker button { font: inherit; font-size: 0.85rem; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.picker button .mono { color: var(--ink-2); font-size: 0.78rem; }
+.picker button:hover { border-color: var(--axis); }
+.picker button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.picker button[aria-pressed="true"] .mono { color: var(--bg); opacity: 0.75; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px 20px; padding-top: 4px; }
+.stat { display: grid; gap: 2px; }
+.stat .k { font-size: 0.78rem; color: var(--ink-2); }
+.stat .v { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.2; }
+.stat .c { font-size: 0.78rem; color: var(--ink-2); font-family: var(--font-mono); }
+.note { font-size: 0.95rem; max-width: 70ch; }
+
+ol.plain, ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 10px; }
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px 32px; }
+.method > div { min-width: 0; display: grid; gap: 8px; align-content: start; font-size: 0.92rem; }
+.method ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; color: var(--ink); }
+footer { border-top: 1px solid var(--rule); padding-top: 20px; font-size: 0.85rem; color: var(--ink-2); display: grid; gap: 8px; }
+@media (max-width: 560px) {
+  .verdict { grid-template-columns: 1fr; }
+  .chart-card { padding: 14px 12px 10px; }
+  body { font-size: 15.5px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .picker button { transition: background-color .15s, color .15s, border-color .15s; }
+}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Estudio pre-registrado · mercado de EE.UU. 1926–2026 · 8 hipótesis</div>
+    <h1>¿Se puede ganar al mercado?</h1>
+    <p class="lede">Probé las ocho estrategias con más respaldo académico para batir a la bolsa, con casi cien años de datos, costes de transacción y los tests que usan los fondos cuantitativos para no engañarse. Ninguna demostró una ventaja estadística después de publicarse.</p>
+    <div class="verdict">
+      <div class="big"><span id="edge-count">0</span><small> de 8</small></div>
+      <p>estrategias cumplen los cuatro criterios fijados de antemano: alpha significativo fuera de muestra, resistencia al sobreajuste, a los costes y a cambios de parámetros.</p>
+    </div>
+    <div class="facts">
+      <span><b data-v="meta.n_trials"></b> variantes probadas</span>
+      <span><b data-v="meta.cost_bps" data-f="bp"></b> de coste por operación</span>
+      <span>Pre-registrado en el commit <b data-v="meta.prereg_commit"></b>, antes de descargar datos</span>
+    </div>
+  </header>
+
+  <section class="stack">
+    <div class="eyebrow">Antes de nada</div>
+    <h2>Acertar más no es ganar más</h2>
+    <div class="prose stack">
+      <p>Ninguna estrategia gana en todas las operaciones. Una ventaja estadística es una esperanza positiva sobre cientos de operaciones, y la tasa de acierto dice poco sobre ella. En este estudio, la regla que más acierta (<span data-v="H5.name"></span>, <span data-v="H5.oos.win_rate" data-f="pct0"></span> de operaciones ganadoras) es la que peor se compara con el mercado. La de tendencia acierta solo el <span data-v="H1.oos.win_rate" data-f="pct0"></span>, pero su ganancia media (<span data-v="H1.oos.avg_win" data-f="spct1"></span>) multiplica por cinco su pérdida media (<span data-v="H1.oos.avg_loss" data-f="spct1"></span>).</p>
+    </div>
+    <figure class="chart-card">
+      <h3>Tasa de acierto frente a Sharpe relativo al mercado, fuera de muestra</h3>
+      <div class="chart" id="c-scatter"></div>
+      <figcaption>Cada punto es una estrategia con operaciones discretas. El eje vertical es su ratio de Sharpe menos el del mercado en el mismo periodo: por encima de cero, mejor rentabilidad ajustada por riesgo. H6 queda fuera de escala (acierto <span data-v="H6.oos.win_rate" data-f="pct0"></span>, Sharpe relativo <span data-v="H6.oos" data-f="srdiff"></span>) porque los costes de operar dos veces al día la hunden.</figcaption>
+      <details class="data"><summary>Ver datos</summary><div class="table-wrap"><table id="t-scatter"></table></div></details>
+    </figure>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">El veredicto</div>
+    <h2>Hipótesis por hipótesis</h2>
+    <p class="prose">Para que una estrategia contara como ventaja probada tenía que cumplir los cuatro criterios a la vez, evaluados en el periodo posterior a su publicación académica: datos que ni sus autores ni yo pudimos ver al diseñarla.</p>
+    <div class="criteria">
+      <div><b>1 · Alpha significativo</b><span>Alpha CAPM &gt; 0 tras costes, p ajustado por Holm &lt; 0,05 entre las 8 hipótesis.</span></div>
+      <div><b>2 · Sobrevive al sobreajuste</b><span>Deflated Sharpe &gt; 0,95, descontando las <span data-v="meta.n_trials"></span> variantes probadas.</span></div>
+      <div><b>3 · Sobrevive a los costes</b><span>Coste de equilibrio &gt; 10 pb por operación, el doble del supuesto.</span></div>
+      <div><b>4 · Es robusta</b><span>Alpha positivo en al menos el 75 % de las variantes de parámetros.</span></div>
+    </div>
+    <div class="table-wrap">
+      <table class="score" id="t-score"></table>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">El patrón</div>
+    <h2>Funcionaban hasta que se publicaron</h2>
+    <p class="prose">Casi todas las reglas tenían alphas grandes y significativos (t de 2,5 a 5,9) en los datos con los que se descubrieron. En cuatro de las seis con periodo previo, el alpha cae a menos de la mitad o se vuelve negativo después de publicarse. Tendencia y momentum de industrias lo mantienen, pero con tan pocos años no llega a ser significativo. Es el patrón que McLean y Pontiff (2016) documentaron en 97 anomalías: cuando una ventaja se conoce, el mercado la arbitra en parte.</p>
+    <figure class="chart-card">
+      <h3>Alpha anual frente al mercado, antes y después de la publicación</h3>
+      <div class="legend"><span><i class="key-ring"></i>Antes de publicarse</span><span><i class="key-dot" style="background:var(--s1)"></i>Después (fuera de muestra)</span></div>
+      <div class="chart" id="c-decay"></div>
+      <figcaption>Alpha CAPM anualizado, neto de costes. H6 queda fuera de escala (<span data-v="H6.is.alpha" data-f="spct1"></span> → <span data-v="H6.oos.alpha" data-f="spct1"></span>, por costes) y H8 no tiene periodo previo: se evaluó entero en walk-forward.</figcaption>
+      <details class="data"><summary>Ver datos</summary><div class="table-wrap"><table id="t-decay"></table></div></details>
+    </figure>
+  </section>
+
+  <section class="stack" id="explorer">
+    <div class="eyebrow">El detalle</div>
+    <h2>Cada estrategia frente al mercado</h2>
+    <div class="picker" id="picker" role="group" aria-label="Elegir estrategia"></div>
+    <figure class="chart-card">
+      <h3 id="ex-title"></h3>
+      <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Estrategia</span><span><i class="key-line" style="background:var(--s2)"></i><span id="ex-bench-key">Mercado (comprar y mantener)</span></span><span><i class="key-band"></i>Fuera de muestra</span></div>
+      <div class="chart" id="c-equity"></div>
+      <div class="chart" id="c-dd"></div>
+      <figcaption>Arriba, crecimiento de 1 $ en escala logarítmica, neto de costes. Abajo, caída desde el máximo anterior. Datos trimestrales; las métricas de debajo se calculan con datos diarios del periodo fuera de muestra.</figcaption>
+      <div class="stats" id="ex-stats"></div>
+      <p class="note" id="ex-note"></p>
+    </figure>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">El problema de fondo</div>
+    <h2>Demostrar una ventaja pequeña lleva décadas</h2>
+    <div class="prose stack">
+      <p>Aunque alguna de estas ventajas fuera real, los datos no bastan para demostrarlo. La de tendencia tiene un alpha de <span data-v="H1.oos.alpha" data-f="spct1"></span> anual, pero su volatilidad relativa es tan grande que harían falta <span data-v="H1.power.t2" data-f="yrs"></span> fuera de muestra para llegar a un t-stat de 2, y <span data-v="H1.power.t3" data-f="yrs"></span> para el umbral de 3 que se exige cuando se prueban muchas ideas. Desde su publicación solo han pasado <span data-v="H1.oos.years" data-f="yrs"></span>.</p>
+      <p>Por eso el sobreajuste es tan peligroso: con <span data-v="meta.n_trials"></span> variantes sin ninguna habilidad real, la mejor mostraría por puro azar un Sharpe de <span data-v="meta.sr_star" data-f="num2"></span> por encima del mercado (<span data-v="meta.sr_star_ex6" data-f="num2"></span> sin contar H6). Ninguna estrategia de este estudio supera ese listón.</p>
+    </div>
+    <figure class="chart-card">
+      <h3>Años de datos necesarios para un t-stat de 2, frente a los disponibles</h3>
+      <div class="legend"><span><i class="key-ring"></i>Años fuera de muestra disponibles</span><span><i class="key-dot" style="background:var(--s1)"></i>Años necesarios con el alpha observado</span></div>
+      <div class="chart" id="c-power"></div>
+      <figcaption>Escala logarítmica. Años necesarios = (2 / ratio de información anual)², con el alpha CAPM y su error residual fuera de muestra. Con alpha negativo, ningún periodo bastaría.</figcaption>
+      <details class="data"><summary>Ver datos</summary><div class="table-wrap"><table id="t-power"></table></div></details>
+    </figure>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">Lo que sí aguanta</div>
+    <h2>Menos caídas, no más rentabilidad</h2>
+    <p class="prose">El único resultado que se repite casi en cualquier mercado es de riesgo, no de rentabilidad: la misma regla de tendencia (media de 200 sesiones) reduce la peor caída en <span id="mk-count"></span> de los <span id="mk-total"></span> mercados probados, a menudo a la mitad. A cambio, se pierde parte de las subidas y la mejora de Sharpe no es estable.</p>
+    <figure class="chart-card">
+      <h3>Peor caída con la regla de tendencia frente a comprar y mantener</h3>
+      <div class="legend"><span><i class="key-dot" style="background:var(--s2)"></i>Comprar y mantener</span><span><i class="key-dot" style="background:var(--s1)"></i>Tendencia MM200</span></div>
+      <div class="chart" id="c-markets"></div>
+      <figcaption>Índices de precio sin dividendos y liquidez al 0 %, desde el inicio de cada serie en Yahoo Finance. Bitcoin cotiza 7 días a la semana, así que su media de 200 sesiones abarca unos 6,5 meses. Es una comprobación de robustez, no forma parte del veredicto.</figcaption>
+      <details class="data"><summary>Ver datos</summary><div class="table-wrap"><table id="t-markets"></table></div></details>
+    </figure>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">Conclusiones</div>
+    <h2>Qué haría yo con esto</h2>
+    <ol class="plain prose">
+      <li><b>El listón real es un fondo indexado barato.</b> Ninguna de estas reglas lo bate de forma demostrable tras costes. Superarlo de verdad exige información o ejecución que un particular no suele tener.</li>
+      <li><b>Si quieres sufrir menos caídas,</b> un filtro de tendencia las recorta a la mitad en casi todos los mercados probados. El precio es rentar algo menos en los mercados alcistas, como en EE.UU. desde 2009.</li>
+      <li><b>Si aceptas más riesgo a cambio de más rentabilidad esperada,</b> las primas de factores como el momentum tienen un siglo de evidencia. No es ganar al mercado: es cobrar por un riesgo distinto, con años como el <span data-v="H3.oos.worst_year" data-f="spct0"></span> del momentum de industrias.</li>
+      <li><b>Desconfía de cualquier backtest sin periodo fuera de muestra, sin costes o sin corrección por múltiples pruebas.</b> Casi todas estas reglas parecían una mina de oro en los datos con los que se descubrieron.</li>
+    </ol>
+  </section>
+
+  <section class="stack">
+    <div class="eyebrow">Metodología</div>
+    <h2>Cómo se hizo</h2>
+    <div class="method">
+      <div>
+        <h3>Datos</h3>
+        <ul>
+          <li>Mercado de EE.UU. (CRSP, retorno total con dividendos), tipo libre de riesgo, factores Fama-French y momentum, y 30 industrias: Kenneth French Data Library, diario desde julio de 1926.</li>
+          <li>SPY, EFA y AGG (ajustados por dividendos) e índices internacionales: Yahoo Finance.</li>
+          <li>Datos de Kenneth French hasta el <span data-v="H1.full.end" data-f="date"></span>; Yahoo hasta noviembre de 2026.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Ejecución y costes</h3>
+        <ul>
+          <li>Sin mirar al futuro: la señal de un cierre se ejecuta al cierre siguiente, o a la apertura siguiente en H5 y H6.</li>
+          <li><span data-v="meta.cost_bps" data-f="bp"></span> por operación en un sentido; la liquidez rinde el tipo libre de riesgo; el apalancamiento de H2 paga RF + 0,5 %.</li>
+          <li>Sin impuestos. Tests automáticos verifican costes, apalancamiento y ausencia de look-ahead.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Estadística</h3>
+        <ul>
+          <li>Alpha CAPM y Fama-French + momentum con errores Newey-West; corrección de Holm entre las 8 hipótesis.</li>
+          <li>Deflated Sharpe Ratio (Bailey y López de Prado, 2014) sobre la cartera cubierta de beta, con las <span data-v="meta.n_trials"></span> variantes como ensayos.</li>
+          <li>Diferencia de Sharpe con bootstrap estacionario de bloques (2.000 réplicas).</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Limitaciones</h3>
+        <ul>
+          <li>Las carteras de Kenneth French no son directamente invertibles, aunque un ETF como VTI las replica de cerca.</li>
+          <li>Los índices internacionales no incluyen dividendos.</li>
+          <li>La industria «Servicios» tiene retornos anómalos en los años 30 por su tamaño minúsculo; solo afecta al periodo previo de H3.</li>
+          <li>Un único camino histórico: el futuro no tiene por qué parecerse al pasado.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Código, datos y pre-registro en <code>research/market_edge/</code> de la rama <code>claude/sleepy-dirac-j9vz6s</code> del repositorio <code>sitomaker/gs-quant</code>. Para reproducirlo: <code>python data.py &amp;&amp; python run.py &amp;&amp; python build_report.py</code>. Resultados generados el <span data-v="meta.generated" data-f="date"></span>.</p>
+    <p>Estudio estadístico con fines educativos, no asesoramiento financiero. Rentabilidades pasadas no garantizan rentabilidades futuras.</p>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const H = Object.fromEntries(DATA.hyps.map(h => [h.key, h]));
+const NS = 'http://www.w3.org/2000/svg';
+
+/* ---------- formatting (Spanish conventions: decimal comma, thin space before %) ---------- */
+const nf = (v, d) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v).replace('-', '−');
+const sign = (v, s) => (v > 0 ? '+' : '') + s;
+const F = {
+  raw: v => String(v),
+  pct0: v => nf(v * 100, 0) + ' %',
+  pct1: v => nf(v * 100, 1) + ' %',
+  spct0: v => sign(v, nf(v * 100, 0) + ' %'),
+  spct1: v => sign(v, nf(v * 100, 1) + ' %'),
+  spct2: v => sign(v, nf(v * 100, 2) + ' %'),
+  num2: v => nf(v, 2),
+  snum2: v => sign(v, nf(v, 2)),
+  bp: v => nf(v, 0) + ' pb',
+  yrs: v => nf(v, 0) + ' años',
+  date: v => new Date(v + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }),
+  srdiff: o => sign(o.sr - o.sr_b, nf(o.sr - o.sr_b, 2)),
+  growth: v => v >= 100 ? new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(v) + ' $' : nf(v, 2) + ' $',
+};
+function lookup(path) {
+  const [k, ...rest] = path.split('.');
+  let v = k === 'meta' ? DATA.meta : H[k];
+  for (const p of rest) v = v == null ? v : v[p];
+  return v;
+}
+document.querySelectorAll('[data-v]').forEach(n => {
+  const v = lookup(n.dataset.v);
+  n.textContent = v == null ? '—' : F[n.dataset.f || 'raw'](v);
+});
+document.getElementById('edge-count').textContent = DATA.hyps.filter(h => h.tests.edge).length;
+
+/* ---------- tiny SVG + DOM helpers ---------- */
+function svgEl(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, str, attrs) {
+  const t = svgEl('text', Object.assign({ x, y }, attrs || {}), parent);
+  t.textContent = str;
+  return t;
+}
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') e.className = v; else if (k === 'style') e.setAttribute('style', v); else e.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid != null) e.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return e;
+}
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+const logs = (d0, d1, r0, r1) => v => r0 + (Math.log(v) - Math.log(d0)) / (Math.log(d1) - Math.log(d0)) * (r1 - r0);
+function niceStep(range, target) {
+  const raw = range / target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag;
+}
+function ticks(d0, d1, target) {
+  const s = niceStep(d1 - d0, target), out = [];
+  for (let v = Math.ceil(d0 / s - 1e-9) * s; v <= d1 + 1e-9; v += s) out.push(+v.toFixed(10));
+  return out;
+}
+function makeTip(container) {
+  let tip = container.querySelector('.tip');
+  if (!tip) { tip = h('div', { class: 'tip', role: 'status' }); tip.hidden = true; container.appendChild(tip); }
+  return {
+    show(head, rows, x, y) {
+      tip.replaceChildren(h('div', { class: 't-head' }, head),
+        ...rows.map(r => h('div', { class: 't-row' },
+          r.color ? h('i', { class: 'key-line', style: `background:${r.color}` }) : null, h('b', {}, r.value), h('span', {}, r.label))));
+      tip.hidden = false;
+      const cw = container.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = x + 14; if (left + tw > cw) left = x - tw - 14; if (left < 0) left = Math.max(0, cw - tw);
+      tip.style.left = left + 'px';
+      tip.style.top = Math.max(0, y - th - 8) + 'px';
+    },
+    hide() { tip.hidden = true; },
+  };
+}
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function fillTable(id, head, rows) {
+  const t = document.getElementById(id);
+  t.replaceChildren(h('thead', {}, h('tr', {}, ...head.map(c => h('th', { class: c.n ? 'n' : '' }, c.t)))),
+    h('tbody', {}, ...rows.map(r => h('tr', {}, ...r.map((c, i) => h('td', { class: head[i].n ? 'n' : '' }, c))))));
+}
+
+/* ---------- dot / dumbbell rows (decay, power, markets) ---------- */
+function dotRows(container, cfg) {
+  const W = container.clientWidth, narrow = W < 560;
+  const left = narrow ? cfg.leftNarrow : cfg.left, right = narrow ? cfg.rightNarrow : cfg.right;
+  const rowH = 34, top = 8, bottom = 30, H_ = top + bottom + rowH * cfg.rows.length;
+  container.replaceChildren();
+  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H_}`, height: H_, role: 'img', 'aria-label': cfg.aria }, container);
+  const x = (cfg.log ? logs : lin)(cfg.domain[0], cfg.domain[1], left, W - right);
+  const tip = makeTip(container);
+  for (const t of cfg.ticks) {
+    const X = x(t);
+    svgEl('line', { x1: X, x2: X, y1: top, y2: H_ - bottom, stroke: t === cfg.zero ? css('--axis') : css('--grid'), 'stroke-width': 1 }, svg);
+    text(svg, X, H_ - bottom + 18, cfg.tickFmt(t), { 'text-anchor': 'middle' });
+  }
+  cfg.rows.forEach((r, i) => {
+    const Y = top + rowH * i + rowH / 2;
+    const lab = text(svg, 0, Y + 4, narrow ? r.short : r.label, { class: 'lbl' });
+    if (!narrow && lab.getComputedTextLength() > left - 14) lab.textContent = r.short;
+    const pts = r.points.filter(p => p.v != null);
+    if (pts.length === 2) {
+      svgEl('line', { x1: x(pts[0].v), x2: x(pts[1].v), y1: Y, y2: Y, stroke: css('--axis'), 'stroke-width': 2, 'stroke-linecap': 'round' }, svg);
+    }
+    for (const p of pts) {
+      const X = x(p.v);
+      const g = svgEl('g', { tabindex: 0, role: 'img', 'aria-label': `${r.label}: ${p.tip}` }, svg);
+      svgEl('circle', { cx: X, cy: Y, r: 14, fill: 'transparent' }, g);
+      if (p.ring) svgEl('circle', { cx: X, cy: Y, r: 5, fill: css('--surface'), stroke: css('--ink-2'), 'stroke-width': 2 }, g);
+      else svgEl('circle', { cx: X, cy: Y, r: 5.5, fill: p.color, stroke: css('--surface'), 'stroke-width': 2 }, g);
+      const show = () => tip.show(r.label, [{ value: p.tip, label: p.name, color: p.ring ? css('--ink-2') : p.color }], X, Y);
+      g.addEventListener('pointerenter', show); g.addEventListener('focus', show);
+      g.addEventListener('pointerleave', () => tip.hide()); g.addEventListener('blur', () => tip.hide());
+    }
+    if (r.note && !(narrow && cfg.noNotesNarrow)) text(svg, W - right + 10, Y + 4, r.note, { class: 'val' });
+  });
+}
+
+/* ---------- 1. win rate vs relative Sharpe ---------- */
+function renderScatter() {
+  const c = document.getElementById('c-scatter');
+  const pts = DATA.hyps.filter(h => h.oos.win_rate != null && h.key !== 'H6')
+    .map(h => ({ h, x: h.oos.win_rate, y: h.oos.sr - h.oos.sr_b }));
+  const W = c.clientWidth, narrow = W < 560, Hh = narrow ? 260 : 300;
+  const m = { l: 44, r: narrow ? 12 : 24, t: 14, b: 40 };
+  c.replaceChildren();
+  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${Hh}`, height: Hh, role: 'img', 'aria-label': 'Dispersión: tasa de acierto frente a Sharpe relativo al mercado' }, c);
+  const x = lin(0.35, 0.75, m.l, W - m.r), y = lin(-0.4, 0.2, Hh - m.b, m.t);
+  for (const t of ticks(-0.4, 0.2, 6)) {
+    svgEl('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: Math.abs(t) < 1e-9 ? css('--axis') : css('--grid') }, svg);
+    text(svg, m.l - 8, y(t) + 4, Math.abs(t) < 1e-9 ? '0' : F.snum2(t), { 'text-anchor': 'end', class: 'num' });
+  }
+  for (const t of [0.4, 0.5, 0.6, 0.7]) {
+    svgEl('line', { x1: x(t), x2: x(t), y1: m.t, y2: Hh - m.b, stroke: t === 0.5 ? css('--axis') : css('--grid') }, svg);
+    text(svg, x(t), Hh - m.b + 18, F.pct0(t), { 'text-anchor': 'middle' });
+  }
+  text(svg, (m.l + W - m.r) / 2, Hh - 4, 'Operaciones ganadoras', { 'text-anchor': 'middle' });
+  text(svg, m.l + 6, y(0) + 15, 'igual que el mercado', { 'text-anchor': 'start' });
+  const tip = makeTip(c);
+  for (const p of pts) {
+    const X = x(p.x), Y = y(p.y);
+    const g = svgEl('g', { tabindex: 0, role: 'img', 'aria-label': `${p.h.key} ${p.h.name}` }, svg);
+    svgEl('circle', { cx: X, cy: Y, r: 14, fill: 'transparent' }, g);
+    svgEl('circle', { cx: X, cy: Y, r: 6, fill: css('--s1'), stroke: css('--surface'), 'stroke-width': 2 }, g);
+    const anchorRight = X > W - 170;
+    text(svg, X + (anchorRight ? -12 : 12), Y + 4, `${p.h.key} ${narrow ? '' : p.h.title}`.trim(), { class: 'lbl', 'text-anchor': anchorRight ? 'end' : 'start' });
+    const show = () => tip.show(`${p.h.key} · ${p.h.name}`, [
+      { value: F.pct0(p.x), label: 'operaciones ganadoras' },
+      { value: F.snum2(p.y), label: 'Sharpe menos el del mercado' },
+      { value: p.h.oos.n_trades, label: 'operaciones' }], X, Y);
+    g.addEventListener('pointerenter', show); g.addEventListener('focus', show);
+    g.addEventListener('pointerleave', () => tip.hide()); g.addEventListener('blur', () => tip.hide());
+  }
+}
+fillTable('t-scatter', [{ t: 'Estrategia' }, { t: 'Operaciones', n: 1 }, { t: 'Acierto', n: 1 }, { t: 'Ganancia media', n: 1 }, { t: 'Pérdida media', n: 1 }, { t: 'Sharpe', n: 1 }, { t: 'Sharpe mercado', n: 1 }],
+  DATA.hyps.filter(h => h.oos.win_rate != null).map(h => [`${h.key} ${h.name}`, h.oos.n_trades, F.pct0(h.oos.win_rate), F.spct1(h.oos.avg_win), F.spct1(h.oos.avg_loss), F.num2(h.oos.sr), F.num2(h.oos.sr_b)]));
+
+/* ---------- 2. scorecard ---------- */
+const ICON_OK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_KO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function chip(ok, label) {
+  const c = h('span', { class: 'chip ' + (ok ? 'ok' : 'ko') });
+  c.innerHTML = ok ? ICON_OK : ICON_KO;  // static icon markup only
+  c.append(document.createTextNode(label));
+  c.setAttribute('title', ok ? 'Cumple' : 'No cumple');
+  return c;
+}
+(function renderScore() {
+  const head = ['', 'Hipótesis', 'Fuera de muestra', 'Alpha (t)', 'p Holm', 'DSR', 'Equilibrio', 'Robustez', 'Veredicto'];
+  const rows = DATA.hyps.map(hy => {
+    const c = hy.tests.criteria;
+    return h('tr', {},
+      h('td', { class: 'h' }, hy.key),
+      h('td', {}, h('div', { class: 'ttl' }, hy.title), h('div', { class: 'rule' }, hy.name)),
+      h('td', { class: 'n' }, 'desde ' + hy.oos_start.slice(0, 4)),
+      h('td', { class: 'n' }, `${F.spct1(hy.oos.alpha)} (${F.num2(hy.oos.t)})`),
+      h('td', {}, chip(c.alpha_oos, F.num2(hy.tests.p_holm))),
+      h('td', {}, chip(c.dsr, F.num2(hy.tests.dsr))),
+      h('td', {}, chip(c.costs, nf(hy.tests.breakeven, 1) + ' pb')),
+      h('td', {}, chip(c.robust, F.pct0(hy.tests.robust))),
+      h('td', {}, chip(hy.tests.edge, hy.tests.edge ? 'Probada' : 'Sin ventaja')));
+  });
+  document.getElementById('t-score').replaceChildren(
+    h('thead', {}, h('tr', {}, ...head.map((t, i) => h('th', { class: i === 2 || i === 3 ? 'n' : '' }, t)))), h('tbody', {}, ...rows));
+})();
+
+/* ---------- 3. decay ---------- */
+function renderDecay() {
+  const rows = DATA.hyps.filter(h => h.is && h.key !== 'H6').map(h => ({
+    label: `${h.key} ${h.title}`, short: h.key,
+    note: `${sign(h.oos.alpha - h.is.alpha, nf((h.oos.alpha - h.is.alpha) * 100, 1))} pp`,
+    points: [
+      { v: h.is.alpha, ring: true, name: `antes (${h.is.start.slice(0, 4)}–${h.is.end.slice(0, 4)}), t = ${F.num2(h.is.t)}`, tip: F.spct2(h.is.alpha) },
+      { v: h.oos.alpha, color: css('--s1'), name: `después (${h.oos.start.slice(0, 4)}–${h.oos.end.slice(0, 4)}), t = ${F.num2(h.oos.t)}`, tip: F.spct2(h.oos.alpha) }],
+  }));
+  dotRows(document.getElementById('c-decay'), {
+    rows, domain: [-0.05, 0.07], ticks: [-0.04, -0.02, 0, 0.02, 0.04, 0.06], zero: 0, tickFmt: t => F.spct0(t).replace('+0 %', '0 %'),
+    left: 230, leftNarrow: 40, right: 70, rightNarrow: 62, aria: 'Alpha antes y después de la publicación',
+  });
+}
+fillTable('t-decay', [{ t: 'Hipótesis' }, { t: 'Antes', n: 1 }, { t: 't', n: 1 }, { t: 'Después', n: 1 }, { t: 't', n: 1 }],
+  DATA.hyps.filter(h => h.is).map(h => [`${h.key} ${h.title} (${h.is.start.slice(0, 4)}–${h.is.end.slice(0, 4)} / ${h.oos.start.slice(0, 4)}–${h.oos.end.slice(0, 4)})`,
+    F.spct2(h.is.alpha), F.num2(h.is.t), F.spct2(h.oos.alpha), F.num2(h.oos.t)]));
+
+/* ---------- 4. explorer: equity + drawdown ---------- */
+const NOTES = {
+  H1: h => `Recorta la peor caída de ${F.pct0(h.oos.mdd_b)} a ${F.pct0(h.oos.mdd)}, pero desde 2007 renta ${F.pct1(h.oos.cagr)} anual frente al ${F.pct1(h.oos.cagr_b)} del mercado. Su alpha (${F.spct1(h.oos.alpha)}) no se distingue del azar con 20 años de datos: t = ${F.num2(h.oos.t)}.`,
+  H2: h => `Desde 2017 queda prácticamente igual que el mercado: ${F.pct1(h.oos.cagr)} anual frente a ${F.pct1(h.oos.cagr_b)} y un Sharpe de ${F.num2(h.oos.sr)} frente a ${F.num2(h.oos.sr_b)}. En la historia completa sí mejoraba (t = ${F.num2(h.full.t)}).`,
+  H3: h => `Batió al mercado en rentabilidad desde 1999 (${F.pct1(h.oos.cagr)} frente a ${F.pct1(h.oos.cagr_b)} anual), pero se explica casi entero por el factor momentum: frente a Fama-French + momentum, el alpha cae a ${F.spct1(h.oos.ff4_alpha)} (t = ${F.num2(h.oos.ff4_t)}). Es una prima de riesgo conocida, con caídas como las del mercado (${F.pct0(h.oos.mdd)}).`,
+  H4: h => `Era la anomalía más fuerte de la historia (t = ${F.num2(h.is.t)} antes de 1988). Fuera de muestra su alpha se ha reducido a ${F.spct1(h.oos.alpha)}, y los costes de entrar y salir cada mes se comen ${F.pct1(h.oos.cost_drag)} al año.`,
+  H5: h => `Acierta el ${F.pct0(h.oos.win_rate)} de las veces, pero solo está invertida el ${F.pct0(h.oos.exposure)} del tiempo y renta ${F.pct1(h.oos.cagr)} anual frente al ${F.pct1(h.oos.cagr_b)} del mercado. Antes de publicarse, el alpha era ${F.spct1(h.is.alpha)} (t = ${F.num2(h.is.t)}).`,
+  H6: h => `El efecto existe: sin costes, su alpha fuera de muestra es ${F.spct1(h.gross_alpha)}. Pero operar dos veces al día cuesta ${F.pct0(h.oos.cost_drag)} al año con ${F.bp(DATA.meta.cost_bps)} por operación. El coste de equilibrio es ${nf(h.tests.breakeven, 1)} pb, inalcanzable para un inversor particular.`,
+  H7: h => `Desde su publicación en 2014 ha rendido ${F.pct1(h.oos.cagr)} anual frente al ${F.pct1(h.oos.cagr_b)} del S&P 500, con una peor caída igual de profunda (${F.pct0(h.oos.mdd)}). Ninguna de sus variantes tuvo alpha positivo.`,
+  H8: h => `Un modelo flexible no encuentra lo que las reglas simples no encuentran. En ${nf(h.oos.years, 0)} años de walk-forward su alpha CAPM es ${F.spct1(h.oos.alpha)} (t = ${F.num2(h.oos.t)}), y frente a Fama-French + momentum cae a ${F.spct1(h.oos.ff4_alpha)} (t = ${F.num2(h.oos.ff4_t)}): se explica por estar menos expuesto al mercado.`,
+};
+let current = 'H1', hoverIdx = null;
+const ym = d => +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12;
+function renderExplorer() {
+  const hy = H[current], c = hy.curve;
+  document.getElementById('ex-title').textContent = `${hy.key} · ${hy.name}`;
+  document.getElementById('ex-bench-key').textContent = hy.bench === 'SPY' ? 'SPY (comprar y mantener)' : 'Mercado EE.UU. (comprar y mantener)';
+  const eq = document.getElementById('c-equity'), dd = document.getElementById('c-dd');
+  const W = eq.clientWidth, narrow = W < 560;
+  const m = { l: narrow ? 46 : 56, r: narrow ? 70 : 118, t: 10, b: 8 };
+  const xs = c.d.map(ym), x = lin(xs[0], xs[xs.length - 1], m.l, W - m.r);
+  const oosX = Math.max(m.l, x(+hy.oos_start.slice(0, 4)));
+  const xTicks = (() => {
+    const span = xs[xs.length - 1] - xs[0], step = span > 60 ? 20 : span > 25 ? 10 : 5;
+    const out = []; for (let y = Math.ceil(xs[0] / step) * step; y <= xs[xs.length - 1]; y += step) out.push(y); return out;
+  })();
+  // equity
+  const He = narrow ? 230 : 290;
+  eq.replaceChildren();
+  const s1 = svgEl('svg', { viewBox: `0 0 ${W} ${He}`, height: He, role: 'img', 'aria-label': `Crecimiento de 1 dólar: ${hy.name} frente al mercado`, tabindex: 0 }, eq);
+  const all = c.s.concat(c.b), lo = Math.min(...all) * 0.85, hi = Math.max(...all) * 1.15;
+  const y = logs(lo, hi, He - m.b, m.t);
+  svgEl('rect', { x: oosX, y: m.t, width: W - m.r - oosX, height: He - m.t - m.b, fill: css('--oos-band') }, s1);
+  let yt = []; for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) for (const k of [1, 2, 5]) { const v = k * 10 ** p; if (v >= lo && v <= hi) yt.push({ v, k }); }
+  if (yt.length > 7) yt = yt.filter(t => t.k === 1);
+  yt = yt.map(t => t.v);
+  const yFmt = t => t >= 1000 ? new Intl.NumberFormat('es-ES').format(t) : nf(t, t >= 1 ? 0 : t >= 0.1 ? 1 : 2);
+  for (const t of yt) {
+    svgEl('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: css('--grid') }, s1);
+    text(s1, m.l - 8, y(t) + 4, yFmt(t), { 'text-anchor': 'end', class: 'num' });
+  }
+  const path = (vals, sc) => vals.map((v, i) => `${i ? 'L' : 'M'}${x(xs[i]).toFixed(1)},${sc(v).toFixed(1)}`).join('');
+  svgEl('path', { d: path(c.b, y), fill: 'none', stroke: css('--s2'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, s1);
+  svgEl('path', { d: path(c.s, y), fill: 'none', stroke: css('--s1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, s1);
+  // end labels with leader lines when they would collide
+  const last = c.s.length - 1, ends = [{ v: c.s[last], name: 'Estrategia', color: css('--s1') }, { v: c.b[last], name: 'Mercado', color: css('--s2') }]
+    .map(e => Object.assign(e, { y0: y(e.v), y: y(e.v) })).sort((a, b) => a.y - b.y);
+  if (ends[1].y - ends[0].y < 30) { const mid = (ends[0].y + ends[1].y) / 2; ends[0].y = mid - 15; ends[1].y = mid + 15; }
+  for (const e of ends) {
+    const ex = x(xs[last]);
+    svgEl('circle', { cx: ex, cy: e.y0, r: 4, fill: e.color, stroke: css('--surface'), 'stroke-width': 2 }, s1);
+    if (Math.abs(e.y - e.y0) > 1) svgEl('line', { x1: ex + 5, y1: e.y0, x2: ex + 9, y2: e.y, stroke: css('--axis') }, s1);
+    text(s1, ex + 10, e.y - 2, narrow ? '' : e.name, { class: 'lbl' });
+    text(s1, ex + 10, e.y + (narrow ? 4 : 11), F.growth(e.v), { class: 'val' });
+  }
+  const cross1 = svgEl('line', { y1: m.t, y2: He - m.b, stroke: css('--axis'), visibility: 'hidden' }, s1);
+  const dotS = svgEl('circle', { r: 4.5, fill: css('--s1'), stroke: css('--surface'), 'stroke-width': 2, visibility: 'hidden' }, s1);
+  const dotB = svgEl('circle', { r: 4.5, fill: css('--s2'), stroke: css('--surface'), 'stroke-width': 2, visibility: 'hidden' }, s1);
+  text(s1, oosX + 6, m.t + 14, narrow ? 'OOS' : 'fuera de muestra →', {});
+  // drawdown
+  const Hd = narrow ? 120 : 140;
+  dd.replaceChildren();
+  const s2 = svgEl('svg', { viewBox: `0 0 ${W} ${Hd}`, height: Hd, role: 'img', 'aria-label': 'Caída desde máximos' }, dd);
+  const mdd = Math.min(...c.ds, ...c.db), dlo = Math.floor(mdd * 10) / 10;
+  const yd = lin(dlo, 0, Hd - 24, 6);
+  svgEl('rect', { x: oosX, y: 6, width: W - m.r - oosX, height: Hd - 30, fill: css('--oos-band') }, s2);
+  for (const t of ticks(dlo, 0, 3)) {
+    svgEl('line', { x1: m.l, x2: W - m.r, y1: yd(t), y2: yd(t), stroke: t === 0 ? css('--axis') : css('--grid') }, s2);
+    text(s2, m.l - 8, yd(t) + 4, Math.abs(t) < 1e-9 ? '0 %' : F.pct0(t), { 'text-anchor': 'end', class: 'num' });
+  }
+  for (const t of xTicks) text(s2, x(t), Hd - 6, String(t), { 'text-anchor': 'middle', class: 'num' });
+  svgEl('path', { d: path(c.ds, yd) + `L${x(xs[last])},${yd(0)}L${x(xs[0])},${yd(0)}Z`, fill: css('--s1-wash') }, s2);
+  svgEl('path', { d: path(c.db, yd), fill: 'none', stroke: css('--s2'), 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, s2);
+  svgEl('path', { d: path(c.ds, yd), fill: 'none', stroke: css('--s1'), 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, s2);
+  const cross2 = svgEl('line', { y1: 6, y2: Hd - 24, stroke: css('--axis'), visibility: 'hidden' }, s2);
+  // crosshair
+  const tip = makeTip(eq);
+  function at(i) {
+    hoverIdx = i;
+    const X = x(xs[i]);
+    for (const l of [cross1, cross2]) { l.setAttribute('x1', X); l.setAttribute('x2', X); l.setAttribute('visibility', 'visible'); }
+    dotS.setAttribute('cx', X); dotS.setAttribute('cy', y(c.s[i])); dotS.setAttribute('visibility', 'visible');
+    dotB.setAttribute('cx', X); dotB.setAttribute('cy', y(c.b[i])); dotB.setAttribute('visibility', 'visible');
+    const [yy, mm] = c.d[i].split('-');
+    tip.show(`T${Math.ceil(+mm / 3)} ${yy}`, [
+      { value: F.growth(c.s[i]), label: `estrategia · caída ${F.pct0(c.ds[i])}`, color: css('--s1') },
+      { value: F.growth(c.b[i]), label: `mercado · caída ${F.pct0(c.db[i])}`, color: css('--s2') }], X, Math.min(y(c.s[i]), y(c.b[i])));
+  }
+  function off() { hoverIdx = null; tip.hide(); for (const n of [cross1, cross2, dotS, dotB]) n.setAttribute('visibility', 'hidden'); }
+  const nearest = px => { const v = lin(m.l, W - m.r, xs[0], xs[last])(px); let b = 0; for (let i = 1; i < xs.length; i++) if (Math.abs(xs[i] - v) < Math.abs(xs[b] - v)) b = i; return b; };
+  for (const svg of [s1, s2]) {
+    svg.addEventListener('pointermove', ev => { const r = svg.getBoundingClientRect(); at(nearest((ev.clientX - r.left) * W / r.width)); });
+    svg.addEventListener('pointerleave', off);
+  }
+  s1.addEventListener('keydown', ev => {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+    at(Math.max(0, Math.min(last, (hoverIdx ?? last) + (ev.key === 'ArrowRight' ? 1 : -1))));
+  });
+  s1.addEventListener('blur', off);
+  // stats
+  const o = hy.oos, st = document.getElementById('ex-stats');
+  const stat = (k, v, cmp) => h('div', { class: 'stat' }, h('span', { class: 'k' }, k), h('span', { class: 'v' }, v), h('span', { class: 'c' }, cmp));
+  const mk = hy.bench === 'SPY' ? 'SPY' : 'mercado';
+  st.replaceChildren(
+    stat(`Rentabilidad anual · desde ${o.start.slice(0, 4)}`, F.pct1(o.cagr), `${mk} ${F.pct1(o.cagr_b)}`),
+    stat('Ratio de Sharpe', F.num2(o.sr), `${mk} ${F.num2(o.sr_b)}`),
+    stat('Peor caída', F.pct0(o.mdd), `${mk} ${F.pct0(o.mdd_b)}`),
+    stat('Alpha CAPM', F.spct1(o.alpha), `t = ${F.num2(o.t)} · β = ${F.num2(o.beta)}`),
+    stat('Años que bate al mercado', F.pct0(o.pct_years_beat), `de ${o.n_years} años completos`),
+    o.win_rate != null ? stat('Operaciones ganadoras', F.pct0(o.win_rate), `${o.n_trades} operaciones`) : stat('Meses en positivo', F.pct0(o.pct_months_up), 'sin operaciones discretas'));
+  document.getElementById('ex-note').textContent = NOTES[current](hy);
+}
+(function renderPicker() {
+  const p = document.getElementById('picker');
+  for (const hy of DATA.hyps) {
+    const b = h('button', { type: 'button', 'aria-pressed': String(hy.key === current) }, h('span', { class: 'mono' }, hy.key), hy.title);
+    b.addEventListener('click', () => { current = hy.key; p.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderExplorer(); });
+    p.appendChild(b);
+  }
+})();
+
+/* ---------- 5. power ---------- */
+function renderPower() {
+  const rows = DATA.hyps.map(h => {
+    const need = h.power.t2, have = h.oos.years;
+    const note = need == null ? 'α ≤ 0' : need <= have ? 'basta' : `faltan ${Math.round(need) - Math.round(have)}`;
+    return {
+      label: `${h.key} ${h.title}`, short: h.key, note,
+      points: [{ v: have, ring: true, name: 'años disponibles', tip: F.yrs(have) },
+        { v: need == null ? null : Math.min(need, 1000), color: css('--s1'), name: `necesarios para t = 2 (t = 3: ${h.power.t3 == null ? '—' : F.yrs(h.power.t3)})`, tip: need == null ? '—' : F.yrs(need) }],
+    };
+  });
+  dotRows(document.getElementById('c-power'), {
+    rows, log: true, domain: [5, 400], ticks: [5, 10, 20, 50, 100, 200, 400], tickFmt: t => String(t),
+    left: 230, leftNarrow: 40, right: 86, rightNarrow: 72, aria: 'Años necesarios frente a disponibles',
+  });
+}
+fillTable('t-power', [{ t: 'Hipótesis' }, { t: 'Disponibles', n: 1 }, { t: 'Ratio de información', n: 1 }, { t: 'Necesarios t = 2', n: 1 }, { t: 'Necesarios t = 3', n: 1 }],
+  DATA.hyps.map(h => [`${h.key} ${h.title}`, nf(h.oos.years, 1), F.num2(h.power.ar), h.power.t2 == null ? '—' : nf(h.power.t2, 0), h.power.t3 == null ? '—' : nf(h.power.t3, 0)]));
+
+/* ---------- 6. other markets ---------- */
+function renderMarkets() {
+  const rows = DATA.markets.map(mk => ({
+    label: mk.label, short: mk.label.split(' (')[0].replace('Euro Stoxx 50', 'Stoxx 50').replace('Hang Seng', 'H. Seng'),
+    note: `SR ${F.num2(mk.sr)} / ${F.num2(mk.sr_b)}`,
+    points: [{ v: mk.mdd_b, color: css('--s2'), name: `comprar y mantener · Sharpe ${F.num2(mk.sr_b)}`, tip: F.pct0(mk.mdd_b) },
+      { v: mk.mdd, color: css('--s1'), name: `tendencia MM200 · Sharpe ${F.num2(mk.sr)}`, tip: F.pct0(mk.mdd) }],
+  }));
+  dotRows(document.getElementById('c-markets'), {
+    rows, domain: [-0.9, 0], ticks: [-0.8, -0.6, -0.4, -0.2, 0], zero: 0, tickFmt: t => F.pct0(t),
+    left: 170, leftNarrow: 72, right: 104, rightNarrow: 18, noNotesNarrow: true, aria: 'Peor caída por mercado',
+  });
+}
+document.getElementById('mk-count').textContent = DATA.markets.filter(m => m.mdd > m.mdd_b + 0.02).length;
+document.getElementById('mk-total').textContent = DATA.markets.length;
+fillTable('t-markets', [{ t: 'Mercado' }, { t: 'Desde', n: 1 }, { t: 'Peor caída B&H', n: 1 }, { t: 'Peor caída tendencia', n: 1 }, { t: 'Sharpe B&H', n: 1 }, { t: 'Sharpe tendencia', n: 1 }, { t: 'Sharpe desde 2007 (tend. / B&H)', n: 1 }],
+  DATA.markets.map(m => [m.label, m.start.slice(0, 4), F.pct0(m.mdd_b), F.pct0(m.mdd), F.num2(m.sr_b), F.num2(m.sr), `${F.num2(m.oos_sr)} / ${F.num2(m.oos_sr_b)}`]));
+
+/* ---------- render + respond to width and theme ---------- */
+function renderAll() { renderScatter(); renderDecay(); renderExplorer(); renderPower(); renderMarkets(); }
+renderAll();
+let lastW = document.querySelector('.wrap').clientWidth, raf = 0;
+new ResizeObserver(() => {
+  const w = document.querySelector('.wrap').clientWidth;
+  if (w === lastW) return; lastW = w;
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(renderAll);
+}).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
+new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
